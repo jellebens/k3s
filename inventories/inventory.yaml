@@ -1,0 +1,68 @@
+all:
+  children:
+    k3s:
+      children:
+        masters:
+          hosts:
+            k3s-node01.local:
+              ansible_user: admin
+              static_interface: eth0
+              static_ip: 192.168.50.151
+              static_prefix: 24
+              static_gateway: 192.168.50.1
+              static_dns:
+                - 192.168.50.1
+                - 192.168.50.144 
+                - 192.168.50.145 
+                - 8.8.8.8
+                - 8.8.4.4
+        workers:
+          hosts:
+            k3s-node02.local:
+              ansible_user: admin
+              static_interface: eth0
+              static_ip: 192.168.50.152
+              static_prefix: 24
+              static_gateway: 192.168.50.1
+              static_dns:
+                - 192.168.50.1
+                - 192.168.50.144 
+                - 192.168.50.145 
+                - 8.8.8.8
+                - 8.8.4.4  
+            k3s-node03.local:
+              ansible_user: admin
+              static_interface: eth0
+              static_ip: 192.168.50.153
+              static_prefix: 24
+              static_gateway: 192.168.50.1
+              static_dns:
+                - 192.168.50.1
+                - 192.168.50.144 
+                - 192.168.50.145 
+                - 8.8.8.8
+                - 8.8.4.4
+            k3s-node04.local:
+              ansible_user: admin
+              static_interface: eth0
+              static_ip: 192.168.50.154
+              static_prefix: 24
+              static_gateway: 192.168.50.1
+              static_dns:
+                - 192.168.50.1
+                - 192.168.50.144 
+                - 192.168.50.145 
+                - 8.8.8.8
+                - 8.8.4.4
+            k3s-node05.local:
+              ansible_user: admin
+              static_interface: eth0
+              static_ip: 192.168.50.155
+              static_prefix: 24
+              static_gateway: 192.168.50.1
+              static_dns:
+                - 192.168.50.1
+                - 192.168.50.144 
+                - 192.168.50.145 
+                - 8.8.8.8
+                - 8.8.4.4

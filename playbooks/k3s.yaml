@@ -1,0 +1,19 @@
+---
+- name: Install and Configure K3s Cluster
+  hosts: k3s
+  gather_facts: false
+  roles: 
+     - infra
+     #- k3s
+
+
+
+  # tasks:
+  #   - name: Configure Networking
+  #     ansible.builtin.include_tasks: tasks/infra/networking.yaml
+  #   - name: Install K3s
+  #     ansible.builtin.include_tasks: tasks/k3s/install-master-nodes.yaml
+  #     when: "'masters' in group_names"
+  #   - name: Install K3s Worker Nodes
+  #     ansible.builtin.include_tasks: tasks/k3s/install-worker-nodes.yaml
+  #     when: "'workers' in group_names"  
