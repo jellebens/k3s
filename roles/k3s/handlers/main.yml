@@ -1,0 +1,12 @@
+---
+- name: reboot_pi
+  become: true
+  ansible.builtin.reboot:
+    reboot_timeout: 300
+    connect_timeout: 10
+    post_reboot_delay: 5
+    pre_reboot_delay: 3
+    msg: "Ansible triggered reboot"
+    test_command: "whoami"
+
+

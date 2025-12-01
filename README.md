@@ -57,13 +57,5 @@ sudo add-apt-repository --yes --update ppa:ansible/ansible
 
 sudo apt install -y ansible
 
+ANSIBLE_CONFIG=./ansible.cfg ansible-playbook playbooks/k3s.yaml
 ```
-
-add the following vars to ~/.bashrc
-
-export ANSIBLE_ROLES_PATH=./roles
-export ANSIBLE_INVENTORY=./inventories/inventory.yaml
-
-
-ansible-playbook playbooks/k3s.yaml
-

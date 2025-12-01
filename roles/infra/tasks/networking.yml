@@ -1,4 +1,16 @@
 ---
+- name: Validate networking variables
+  ansible.builtin.assert:
+    that:
+      - static_interface is defined
+      - static_ip is defined
+      - static_prefix is defined
+      - static_gateway is defined
+      - static_dns is defined
+    fail_msg: >
+      Missing networking vars for {{ inventory_hostname }}.
+      Expected: static_interface, static_ip, static_prefix, static_gateway, static_dns
+      
 - name: Verify NetworkManager is running
   ansible.builtin.systemd:
     name: NetworkManager

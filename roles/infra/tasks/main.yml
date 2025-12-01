@@ -1,27 +1,4 @@
----
-- name: Show networking variables for {{ inventory_hostname }}
-  ansible.builtin.debug:
-    msg:
-      inventory_hostname: "{{ inventory_hostname }}"
-      ansible_user: "{{ ansible_user | default('UNSET') }}"
-      static_interface: "{{ static_interface | default('UNSET') }}"
-      static_ip: "{{ static_ip | default('UNSET') }}"
-      static_prefix: "{{ static_prefix | default('UNSET') }}"
-      static_gateway: "{{ static_gateway | default('UNSET') }}"
-      static_dns: "{{ static_dns | default('UNSET') }}"
-      
-- name: Validate networking variables
-  ansible.builtin.assert:
-    that:
-      - static_interface is defined
-      - static_ip is defined
-      - static_prefix is defined
-      - static_gateway is defined
-      - static_dns is defined
-    fail_msg: >
-      Missing networking vars for {{ inventory_hostname }}.
-      Expected: static_interface, static_ip, static_prefix, static_gateway, static_dns
-
+---      
 - name: Configure Networking
   import_tasks: networking.yml
   tags:
