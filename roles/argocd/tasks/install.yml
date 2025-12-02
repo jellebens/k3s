@@ -1,0 +1,95 @@
+---
+- debug:
+    msg: |
+      kubeconfig_path: {{ kubeconfig_path }}
+- name: Add Argo Helm repo
+  kubernetes.core.helm_repository:
+    name: argo
+    repo_url: https://argoproj.github.io/argo-helm
+  environment:
+    KUBECONFIG: "{{ kubeconfig_path }}"
+
+- name: Create Argo CD namespace
+  kubernetes.core.k8s:
+    api_version: v1
+    kind: Namespace
+    name: "{{ argocd_namespace }}"
+  environment:
+    KUBECONFIG: "{{ kubeconfig_path }}"
+
+- name: Install / upgrade Argo CD via Helm
+  kubernetes.core.helm:
+    name: argocd
+    chart_ref: argo/argo-cd
+    chart_version: "{{ argocd_chart_version | default(omit) }}"
+    release_namespace: "{{ argocd_namespace }}"
+    create_namespace: false
+    wait: true
+  environment:
+    KUBECONFIG: "{{ kubeconfig_path }}"
+
+- name: Wait for argocd-secret to exist
+  kubernetes.core.k8s_info:
+    api_version: v1
+    kind: Secret
+    name: argocd-secret
+    namespace: "{{ argocd_namespace }}"
+  register: argocd_secret
+  retries: 30
+  delay: 10
+  until: argocd_secret.resources | length > 0
+  environment:
+    KUBECONFIG: "{{ kubeconfig_path }}"
+
+- name: Generate random Argo CD admin password
+  set_fact:
+    argocd_admin_password: >-
+      {{ lookup(
+            'ansible.builtin.password',
+            '/dev/null',
+            'length=' ~ argocd_password_length,
+            'chars=ascii_letters,digits'
+          ) }}
+
+- name: Generate bcrypt hash for Argo CD admin password
+  set_fact:
+    argocd_admin_password_bcrypt: "{{ argocd_admin_password | password_hash('bcrypt') }}"
+
+- name: Patch argocd-secret with new admin password
+  kubernetes.core.k8s:
+    state: patched
+    kind: Secret
+    name: argocd-secret
+    namespace: "{{ argocd_namespace }}"
+    merge_type: merge
+    definition:
+      stringData:
+        admin.password: "{{ argocd_admin_password_bcrypt }}"
+        admin.passwordMtime: "{{ lookup('pipe', 'date +%FT%T%Z') }}"
+  environment:
+    KUBECONFIG: "{{ kubeconfig_path }}"
+
+- name: Restart argocd-server deployment so it picks up new password
+  kubernetes.core.k8s:
+    api_version: apps/v1
+    kind: Deployment
+    name: argocd-server
+    namespace: "{{ argocd_namespace }}"
+    state: present
+    definition:
+      spec:
+        template:
+          metadata:
+            annotations:
+              admin-password-reload: "{{ lookup('pipe', 'date +%s') }}"
+  environment:
+    KUBECONFIG: "{{ kubeconfig_path }}"
+
+- name: Show Argo CD admin credentials
+  debug:
+    msg:
+      - "Argo CD URL: https://<your-argocd-server-endpoint>"
+      - "Username: admin"
+      - "Password: {{ argocd_admin_password }}"
+  # Set to true if you don't want the password in logs
+  no_log: false

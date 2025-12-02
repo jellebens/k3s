@@ -1,0 +1,11 @@
+---
+- name: Install Services on k3s cluster
+  hosts: masters
+  connection: local
+  gather_facts: false
+  roles: 
+     - argocd
+  vars:
+    argocd_chart_version: ""
+    argocd_namespace: argocd
+    argocd_password_length: 24

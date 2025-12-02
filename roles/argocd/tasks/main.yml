@@ -1,0 +1,7 @@
+- name: Install Argo CD
+  import_tasks: install.yml
+  vars:
+    # Adjust if you want a fixed chart version
+    argocd_chart_version: ""   # e.g. "7.7.8" or leave empty for latest
+    argocd_namespace: argocd
+    argocd_password_length: 24

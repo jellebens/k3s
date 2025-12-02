@@ -26,5 +26,5 @@
 - name: Fetch kubeconfig
   fetch:
     src: /etc/rancher/k3s/k3s.yaml
-    dest: ~/.kube/config
+    dest: {{ kubeconfig_path | default('~/.kube/k3s.yaml') }}
     flat: true

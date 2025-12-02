@@ -8,17 +8,6 @@
     state: present
     update_cache: yes
 
-- name: Ensure cgroup flags are enabled
-  become: true
-  ansible.builtin.lineinfile:
-    path: /boot/firmware/cmdline.txt
-    backrefs: true
-    regexp: '^(.*)$'
-    line: '\1 cgroup_enable=cpuset cgroup_enable=memory cgroup_memory=1'
-  register: cgroup_line
-  when: "'cgroup_enable=memory' not in lookup('file', '/proc/cmdline', errors='ignore')"
-
-
 - name: Wait for kube-apiserver
   ansible.builtin.wait_for:
     host: "{{ k3s_server_ip }}"
@@ -31,8 +20,8 @@
 - name: Install k3s worker (agent)
   become: true
   ansible.builtin.shell: curl -sfL https://get.k3s.io | \
-      INSTALL_K3S_VERSION={{ k3s_version }} \
-      K3S_URL=https://{{ k3s_server_ip }}:6443 \
+      INSTALL_K3S_VERSION={{ version }} \
+      K3S_URL={{ api }} \
       K3S_TOKEN="{{ hostvars[groups['masters'][0]].k3s_token }}" 
       K3S_NODE_NAME={{ inventory_hostname }} \
       K3S_KUBECONFIG_MODE="644" \

@@ -3,5 +3,5 @@
   hosts: k3s
   gather_facts: false
   roles: 
-     #- infra
+     - infra
      - k3s

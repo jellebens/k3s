@@ -1,9 +1,12 @@
 all:
+  # vars:
+  #   ansible_python_interpreter: ~/.venvs/ansible/bin/python3
   children:
     k3s:
       vars:
-        k3s_version: "v1.34.1+k3s1"
-        k3s_server_ip: 192.168.50.151 
+        version: "v1.34.1+k3s1"
+        api: https://192.168.50.151:6443
+        kubeconfig_path: ~/.kube/k3s.yaml
       children:
         masters:
           hosts:
