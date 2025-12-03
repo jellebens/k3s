@@ -1,0 +1,6 @@
+---
+- name: Install and Configure Argo CD
+  hosts: masters
+  gather_facts: false
+  roles: 
+     - argocd

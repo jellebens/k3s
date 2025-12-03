@@ -1,0 +1,24 @@
+---
+- name: Fetch kubeconfig
+  fetch:
+    src: /etc/rancher/k3s/k3s.yaml
+    dest: "{{ kubeconfig_path | default('./kubeconfig') }}"
+    flat: yes
+
+- name: Adjust Kubeconfig for Local Use
+  connection: local
+  ansible.builtin.replace:
+    path: "{{ kubeconfig_path | default('./kubeconfig') }}"
+    regexp: 'https://127\.0\.0\.1:6443'
+    replace: "{{ api }}"
+
+
+- name: Wait until all Kubernetes nodes are Ready
+  connection: local
+  ansible.builtin.command: >
+    kubectl --kubeconfig {{ kubeconfig_path }} get nodes --no-headers
+  register: kube_nodes
+  changed_when: false
+  retries: 30
+  delay: 10
+  until: "'NotReady' not in kube_nodes.stdout"
