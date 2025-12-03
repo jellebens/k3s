@@ -1,3 +1,6 @@
 ---
 - name: Prepare Kubeconfig for Argo CD Installation
   import_tasks: pre-install.yml
+  
+- name: Install Argo CD
+  import_tasks: install.yml

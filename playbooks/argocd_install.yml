@@ -4,3 +4,8 @@
   gather_facts: false
   roles: 
      - argocd
+  vars:
+    argocd_chart_version: "9.1.4"
+    argocd_namespace: argocd
+    argocd_password_length: 24
+    argocd_admin_password: "ChangeMe"
