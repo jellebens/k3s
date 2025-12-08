@@ -57,5 +57,33 @@ sudo add-apt-repository --yes --update ppa:ansible/ansible
 
 sudo apt install -y ansible
 
+```
+
+## Activate Virtual Environment
+```bash
+source ~/.venvs/ansible/bin/activate
+```
+
+## Install Collections
+```bash
+ansible-galaxy collection install ansible.posix
+```
+## Store secrets
+```bash
+ansible-vault create host_vars/k3s-master01.local.yml
+```
+
+Your editor opens, put the following in the file:
+```bash
+ansible_user: admin
+ansible_password: "SuperSecretMasterPwd"
+```
+Save and quit
+
+
+## Run playbook
+```bash
 ANSIBLE_CONFIG=./ansible.cfg ansible-playbook playbooks/k3s.yaml
+
+ANSIBLE_CONFIG=./ansible.cfg ansible-playbook -i ./inventories/homelab-inventory.yaml ./playbooks/bootstrap-ssh.yml --vault-password-file ~/.ansible-vault-pass
 ```

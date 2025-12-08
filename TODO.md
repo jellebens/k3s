@@ -1,5 +1,5 @@
-1. uninstall script
-2. install argocd 
--> ingress
-3. Add wait for k3s cluster ready
+1. install argocd 
+2. ingress for argocd
+3. 
 4. Ansible: setup_step01.sh
+5. test uninstall script

@@ -1,6 +1,4 @@
 all:
-  # vars:
-  #   ansible_python_interpreter: ~/.venvs/ansible/bin/python3
   children:
     k3s:
       vars:
