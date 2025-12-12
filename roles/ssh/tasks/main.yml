@@ -13,9 +13,10 @@
   delegate_to: localhost
   run_once: true
 
-- name: Ensure SSH user exists
+## Change below to password auth
+- name: Ensure SSH user exists 
   ansible.builtin.user:
-    name: "{{ ssh_user }}"
+    name: "{{ ansible_user | default(ssh_user) }}"
     shell: /bin/bash
     groups: "{{ ssh_user_groups }}"
     append: true

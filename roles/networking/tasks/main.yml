@@ -1,5 +1,24 @@
 ---  
-- name: Configure Networking
-  import_tasks: networking.yml
+- name: Configure Wireless Networking
+  import_tasks: configure_mdns.yml
   tags:
     - networking
+    - dns
+    
+# - name: Configure Wired Networking
+#   import_tasks: static_networking.yml
+#   when: static_interface is defined
+#   tags:
+#     - networking
+
+# - name: Configure Wireless Networking
+#   import_tasks: wireless_networking.yml
+#   when: wireless_interface is defined
+#   tags:
+#     - networking
+
+# - name: Configure Wired Networking
+#   import_tasks: static_networking.yml
+#   when: static_interface is defined
+#   tags:
+#     - networking

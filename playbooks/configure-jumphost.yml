@@ -1,0 +1,12 @@
+---
+- name: Configure Jumphost
+  hosts: jump
+  gather_facts: false
+  roles:
+    - role: ssh
+      vars:
+        ssh_user: "admin"
+        ssh_user_groups:
+          - "sudo"
+        local_pubkey_path: "~/.ssh/id_ed25519.pub"
+    - networking

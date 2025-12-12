@@ -1,0 +1,61 @@
+---
+- name: Validate networking variables
+  ansible.builtin.assert:
+    that:
+      - wireless_interface is defined
+      - wireless_ip is defined
+      - wireless_prefix is defined
+      - wireless_gateway is defined
+      - wireless_dns is defined
+    fail_msg: >
+      Missing networking vars for {{ inventory_hostname }}.
+      Expected: wireless_interface, wireless_ip, wireless_prefix, wireless_gateway, wireless_dns
+      
+- name: Verify NetworkManager is running
+  ansible.builtin.systemd:
+    name: NetworkManager
+    state: started
+  ignore_errors: false
+
+- name: Get connection name for {{ wireless_interface }}
+  ansible.builtin.command: nmcli -t -f NAME,DEVICE connection show
+  register: nm_connections
+  become: true
+
+- name: Parse connection name
+  ansible.builtin.set_fact:
+    nm_connection_name: "{{ item.split(':')[0] }}"
+  with_items: "{{ nm_connections.stdout_lines }}"
+  when: item.split(':')[1] == wireless_interface
+
+- name: Configure static IP on {{ wireless_interface }}
+  ansible.builtin.command: >
+    nmcli connection modify "{{ nm_connection_name }}"
+    ipv4.addresses {{ wireless_ip }}/{{ wireless_prefix }}
+    ipv4.gateway {{ wireless_gateway }}
+    ipv4.dns "{{ wireless_dns | join(' ') }}"
+    ipv4.method manual
+    connection.autoconnect yes
+  register: nm_modify
+  become: true
+
+- name: Reboot the Pi and wait for SSH
+  ansible.builtin.reboot:
+    reboot_timeout: 300        
+    connect_timeout: 10
+    post_reboot_delay: 5       
+    pre_reboot_delay: 3        
+    msg: "Ansible-triggered reboot"
+    test_command: "whoami"
+  become: true
+
+- name: Verify the Pi is back online
+  ansible.builtin.ping:
+
+- name: Show resulting IP
+  ansible.builtin.command: ip -4 addr show "{{ wireless_interface }}"
+  register: out
+  changed_when: false
+
+- debug:
+    msg: "{{ out.stdout_lines }}"

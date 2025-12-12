@@ -1,0 +1,13 @@
+- name: Systemd daemon-reload
+  ansible.builtin.systemd:
+    daemon_reload: true
+
+- name: Restart avahi
+  ansible.builtin.service:
+    name: avahi-daemon
+    state: restarted
+
+- name: Restart lan-mdns
+  ansible.builtin.systemd:
+    name: lan-mdns.service
+    state: restarted

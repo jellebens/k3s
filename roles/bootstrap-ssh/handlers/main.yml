@@ -1,7 +1,0 @@
----
-# - name: Restart SSH service
-#   ansible.builtin.service:
-#     name: "{{ item }}"
-#     state: restarted
-#   loop: "{{ sshd_service_names }}"
-#   ignore_errors: true

@@ -1,0 +1,101 @@
+- name: Install avahi packages
+  become: true
+  ansible.builtin.apt:
+    name:
+      - avahi-daemon
+      - avahi-utils
+    state: present
+    update_cache: true
+
+- name: Configure avahi-daemon
+  become: true
+  ansible.builtin.copy:
+    dest: /etc/avahi/avahi-daemon.conf
+    mode: "0644"
+    content: |
+      [server]
+      host-name={{ inventory_hostname }}
+      domain-name=local
+      allow-interfaces=wlan0
+      use-ipv4=yes
+      use-ipv6=yes
+
+      [publish]
+      publish-addresses=yes
+      publish-hinfo=yes
+      publish-workstation=yes
+  notify: Restart avahi
+
+- name: Ensure avahi aliases dir exists
+  become: true
+  ansible.builtin.file:
+    path: /etc/avahi/aliases.d
+    state: directory
+    mode: "0755"
+
+- name: Publish wifi.<hostname>.local alias
+  become: true
+  ansible.builtin.copy:
+    dest: /etc/avahi/aliases.d/wifi.alias
+    mode: "0644"
+    content: |
+      wifi.{{ inventory_hostname }}
+  notify: Restart avahi
+
+- name: Create systemd unit to publish lan.<hostname>.local to eth0 IP
+  become: true
+  ansible.builtin.copy:
+    dest: /etc/systemd/system/lan-mdns.service
+    mode: "0644"
+    content: |
+      [Unit]
+      Description=Publish lan.{{ inventory_hostname }}.local via mDNS on eth0
+      After=network-online.target avahi-daemon.service
+      Wants=network-online.target
+      Requires=avahi-daemon.service
+
+      [Service]
+      Type=simple
+      ExecStart=/usr/bin/avahi-publish-address -R lan.{{ inventory_hostname }} {{ ansible_facts['ansible_eth0']['ipv4']['address'] }}
+      Restart=on-failure
+      RestartSec=2
+
+      [Install]
+      WantedBy=multi-user.target
+  when: ansible_facts['ansible_eth0'] is defined and ansible_facts['ansible_eth0']['ipv4'] is defined
+  notify:
+    - Systemd daemon-reload
+    - Restart lan-mdns
+
+- name: Create systemd unit to publish lan.<hostname>.local to eth0 IP
+  become: true
+  ansible.builtin.copy:
+    dest: /etc/systemd/system/lan-mdns.service
+    mode: "0644"
+    content: |
+      [Unit]
+      Description=Publish lan.{{ inventory_hostname }}.local via mDNS on eth0
+      After=network-online.target avahi-daemon.service
+      Wants=network-online.target
+      Requires=avahi-daemon.service
+
+      [Service]
+      Type=simple
+      ExecStart=/usr/bin/avahi-publish-address -R lan.{{ inventory_hostname }} {{ ansible_facts['ansible_eth0']['ipv4']['address'] }}
+      Restart=on-failure
+      RestartSec=2
+
+      [Install]
+      WantedBy=multi-user.target
+  when: ansible_facts['ansible_eth0'] is defined and ansible_facts['ansible_eth0']['ipv4'] is defined
+  notify:
+    - Systemd daemon-reload
+    - Restart lan-mdns
+
+- name: Enable and start lan mDNS publisher
+  become: true
+  ansible.builtin.systemd:
+    name: lan-mdns.service
+    enabled: true
+    state: started
+  when: ansible_facts['ansible_eth0'] is defined and ansible_facts['ansible_eth0']['ipv4'] is defined

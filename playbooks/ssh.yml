@@ -2,9 +2,8 @@
 - name: Bootstrap SSH access on all nodes
   hosts: all
   gather_facts: false
-
   roles:
-    - role: bootstrap-ssh
+    - role: ssh
       vars:
         ssh_user: "admin"
         ssh_user_groups:
